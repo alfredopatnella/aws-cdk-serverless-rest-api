@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# TypeScript build output
+dist/
+
+# CDK
+cdk.out/
+.cdk.staging/
+
+# Test coverage
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+
+# Environment files
+.env
+.env.local

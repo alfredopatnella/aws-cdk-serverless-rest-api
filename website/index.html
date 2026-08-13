@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Serverless REST API — AWS CDK Reference Architecture</title>
+<meta name="description" content="An educational walkthrough of a serverless REST API built with API Gateway, Lambda, DynamoDB, IAM, CloudWatch, and AWS CDK.">
+<style>
+  :root {
+    --bg: #0b1220;
+    --bg-panel: #121b2e;
+    --bg-panel-alt: #17233b;
+    --border: #263450;
+    --text: #e6ecf7;
+    --text-dim: #9fb0cc;
+    --text-faint: #6b7ba0;
+    --accent: #ff9900;
+    --accent-dim: #c97600;
+    --blue: #5aa9ff;
+    --green: #57d38c;
+    --red: #ff6b6b;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f5f7fb;
+      --bg-panel: #ffffff;
+      --bg-panel-alt: #eef2f9;
+      --border: #d9e1ee;
+      --text: #142033;
+      --text-dim: #46567a;
+      --text-faint: #7a89aa;
+      --accent: #d9720a;
+      --accent-dim: #b8630a;
+      --blue: #1c6fd8;
+      --green: #1a9c5c;
+      --red: #d33f3f;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.55;
+    overflow-x: hidden;
+  }
+
+  a { color: var(--blue); }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  code, pre {
+    font-family: var(--mono);
+    font-size: 0.88em;
+  }
+
+  code {
+    background: var(--bg-panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+  }
+
+  pre {
+    background: var(--bg-panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    max-width: 100%;
+  }
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+  section {
+    padding: 64px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  section:last-of-type { border-bottom: none; }
+
+  h2 {
+    font-size: 1.6rem;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.72rem;
+    color: var(--accent);
+    font-weight: 700;
+    margin: 0 0 10px;
+  }
+  .section-intro {
+    color: var(--text-dim);
+    max-width: 68ch;
+    margin: 0 0 32px;
+  }
+
+  /* ---------- Header ---------- */
+  header.hero {
+    padding: 88px 0 64px;
+    background:
+      radial-gradient(60% 60% at 15% 0%, rgba(255,153,0,0.14), transparent 60%),
+      radial-gradient(50% 50% at 90% 10%, rgba(90,169,255,0.12), transparent 60%);
+    border-bottom: 1px solid var(--border);
+  }
+  .kicker {
+    display: inline-block;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+    border-radius: 999px;
+    padding: 5px 14px;
+    margin-bottom: 22px;
+    font-weight: 700;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.1rem);
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+  }
+  h1 .sub {
+    display: block;
+    font-size: clamp(1rem, 2.4vw, 1.3rem);
+    color: var(--text-dim);
+    font-weight: 500;
+    margin-top: 10px;
+  }
+  .hero-subtitle {
+    max-width: 62ch;
+    color: var(--text-dim);
+    font-size: 1.05rem;
+    margin: 22px 0 32px;
+  }
+  .hero-links a {
+    display: inline-block;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 8px;
+    margin-right: 12px;
+    margin-bottom: 10px;
+  }
+  .hero-links a.primary {
+    background: var(--accent);
+    color: #1a1200;
+  }
+  .hero-links a.secondary {
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  /* ---------- Architecture diagram ---------- */
+  .diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .diagram-node {
+    width: 100%;
+    max-width: 340px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 22px;
+    text-align: center;
+    font-weight: 600;
+  }
+  .diagram-node .label-sub {
+    display: block;
+    font-weight: 400;
+    font-size: 0.82rem;
+    color: var(--text-faint);
+    margin-top: 4px;
+  }
+  .diagram-node.accent { border-color: var(--accent-dim); }
+  .diagram-arrow {
+    color: var(--text-faint);
+    font-size: 1.4rem;
+    line-height: 1;
+    padding: 6px 0;
+  }
+  .diagram-support {
+    margin-top: 28px;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .diagram-support .pill {
+    background: var(--bg-panel-alt);
+    border: 1px dashed var(--border);
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+  .diagram-support .pill b { color: var(--text); }
+
+  /* ---------- Flow steps ---------- */
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+  }
+  .flow-step {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    position: relative;
+  }
+  .flow-step .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #1a1200;
+    font-weight: 800;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+  }
+  .flow-step p { margin: 0; font-size: 0.9rem; color: var(--text-dim); }
+
+  /* ---------- Endpoints ---------- */
+  .endpoints {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 14px;
+  }
+  .endpoint {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .endpoint .method {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 0.78rem;
+    padding: 3px 9px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+  .method.post { background: rgba(87,211,140,0.15); color: var(--green); }
+  .method.get { background: rgba(90,169,255,0.15); color: var(--blue); }
+  .method.delete { background: rgba(255,107,107,0.15); color: var(--red); }
+  .endpoint .path {
+    font-family: var(--mono);
+    font-size: 1rem;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .endpoint p { margin: 0; font-size: 0.87rem; color: var(--text-dim); }
+
+  /* ---------- Service cards ---------- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+  }
+  .card h3 {
+    margin: 0 0 12px;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .card dl { margin: 0; }
+  .card dt {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-faint);
+    margin-top: 12px;
+    font-weight: 700;
+  }
+  .card dt:first-child { margin-top: 0; }
+  .card dd {
+    margin: 4px 0 0;
+    font-size: 0.88rem;
+    color: var(--text-dim);
+  }
+
+  /* ---------- Security ladder ---------- */
+  .security-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .sec-item {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .sec-item .fn {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  .sec-item .arrow-down { color: var(--text-faint); margin: 10px 0; font-size: 1.2rem; }
+  .sec-item .perm {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    background: rgba(87,211,140,0.12);
+    color: var(--green);
+    border-radius: 6px;
+    padding: 5px 12px;
+  }
+
+  /* ---------- Failure paths ---------- */
+  .failure-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .failure-path {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+  }
+  .failure-path .step {
+    font-family: var(--mono);
+    font-size: 0.86rem;
+    padding: 8px 0;
+    color: var(--text-dim);
+  }
+  .failure-path .step.bad { color: var(--red); }
+  .failure-path .step.final { color: var(--text); font-weight: 700; }
+  .failure-path .arrow-down { color: var(--text-faint); text-align: center; }
+
+  /* ---------- Deployment ---------- */
+  .deploy-cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .deploy-cols h4 {
+    margin: 0 0 10px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-faint);
+  }
+
+  /* ---------- Production evolution ---------- */
+  .evolution {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .evolution .item {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    background: var(--bg-panel);
+  }
+  .evolution .item b { color: var(--text); display: block; margin-bottom: 3px; font-size: 0.9rem; }
+  .note {
+    margin-top: 22px;
+    font-size: 0.85rem;
+    color: var(--text-faint);
+    border-left: 3px solid var(--accent-dim);
+    padding-left: 14px;
+  }
+
+  footer {
+    padding: 40px 0 60px;
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="kicker">AWS Reference Architecture</span>
+    <h1>Serverless REST API
+      <span class="sub">AWS CDK Reference Architecture</span>
+    </h1>
+    <p class="hero-subtitle">
+      Learn how API Gateway, Lambda, DynamoDB, IAM, and CloudWatch fit
+      together in a small, production-inspired serverless application —
+      deliberately simple enough to read start to finish in one sitting.
+    </p>
+    <div class="hero-links">
+      <a class="primary" href="#deployment">Deploy it</a>
+      <a class="secondary" href="#architecture">See the architecture</a>
+      <a class="secondary" href="#services">Explore the services</a>
+    </div>
+  </div>
+</header>
+
+<section id="architecture">
+  <div class="wrap">
+    <p class="eyebrow">Architecture</p>
+    <h2>Four services, one request path</h2>
+    <p class="section-intro">
+      A client only ever talks to API Gateway. Everything else — compute,
+      storage, permissions, and logging — happens behind that one HTTPS
+      endpoint.
+    </p>
+
+    <div class="diagram">
+      <div class="diagram-node">Client</div>
+      <div class="diagram-arrow">↓</div>
+      <div class="diagram-node accent">API Gateway<span class="label-sub">Public HTTPS entry point</span></div>
+      <div class="diagram-arrow">↓</div>
+      <div class="diagram-node accent">Lambda<span class="label-sub">TypeScript handlers, one per route</span></div>
+      <div class="diagram-arrow">↓</div>
+      <div class="diagram-node accent">DynamoDB<span class="label-sub">Partition key: id</span></div>
+    </div>
+
+    <div class="diagram-support">
+      <span class="pill"><b>IAM</b> — grants each Lambda one DynamoDB action</span>
+      <span class="pill"><b>CloudWatch</b> — receives logs from every request</span>
+      <span class="pill"><b>CDK / CloudFormation</b> — defines and deploys all of it</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Request Lifecycle</p>
+    <h2>How POST /items flows through the system</h2>
+    <p class="section-intro">
+      Every request follows the same six-stage shape, whether it's
+      creating, reading, listing, or deleting a task.
+    </p>
+    <div class="flow">
+      <div class="flow-step"><span class="num">1</span><p>Client sends a JSON request over HTTPS.</p></div>
+      <div class="flow-step"><span class="num">2</span><p>API Gateway routes the request to the matching Lambda.</p></div>
+      <div class="flow-step"><span class="num">3</span><p>Lambda validates the input before touching any data.</p></div>
+      <div class="flow-step"><span class="num">4</span><p>Lambda calls DynamoDB with a single, scoped SDK command.</p></div>
+      <div class="flow-step"><span class="num">5</span><p>Lambda builds a structured JSON response.</p></div>
+      <div class="flow-step"><span class="num">6</span><p>API Gateway returns the HTTP response to the client.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">API</p>
+    <h2>Four endpoints, four Lambda functions</h2>
+    <p class="section-intro">
+      Each route is backed by its own small handler, so the routing table
+      below and the IAM permissions further down line up one to one.
+    </p>
+    <div class="endpoints">
+      <div class="endpoint">
+        <span class="method post">POST</span>
+        <span class="path">/items</span>
+        <p>Creates a task from a <code>title</code>, generating its <code>id</code>, <code>createdAt</code>, and <code>completed</code> fields.</p>
+      </div>
+      <div class="endpoint">
+        <span class="method get">GET</span>
+        <span class="path">/items</span>
+        <p>Returns every task via a DynamoDB Scan — simple and correct at this scale.</p>
+      </div>
+      <div class="endpoint">
+        <span class="method get">GET</span>
+        <span class="path">/items/{id}</span>
+        <p>Returns one task by partition key, or a structured 404 if it doesn't exist.</p>
+      </div>
+      <div class="endpoint">
+        <span class="method delete">DELETE</span>
+        <span class="path">/items/{id}</span>
+        <p>Removes a task, distinguishing an existing item (204) from a missing one (404).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <p class="eyebrow">AWS Services</p>
+    <h2>What each service is doing here</h2>
+    <p class="section-intro">
+      No service in this stack was added out of habit — each one answers
+      a specific question about the system.
+    </p>
+    <div class="cards">
+      <div class="card">
+        <h3><span class="dot"></span>API Gateway</h3>
+        <dl>
+          <dt>What is it?</dt><dd>A managed HTTPS front door that routes requests to backend integrations.</dd>
+          <dt>Why is it here?</dt><dd>It's the one public entry point — TLS, routing, and request validation without running a web server.</dd>
+        </dl>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>Lambda</h3>
+        <dl>
+          <dt>What is it?</dt><dd>A managed compute service that runs code on demand, with no server to provision.</dd>
+          <dt>Why is it here?</dt><dd>It runs the four small handlers that implement the API's application logic.</dd>
+        </dl>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>DynamoDB</h3>
+        <dl>
+          <dt>What is it?</dt><dd>A managed key-value/document database that scales automatically.</dd>
+          <dt>Why is it here?</dt><dd>It durably stores every task item, keyed by a simple string partition key.</dd>
+        </dl>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>IAM</h3>
+        <dl>
+          <dt>What is it?</dt><dd>AWS's permission system — who (or what) can call which action, on which resource.</dd>
+          <dt>Why is it here?</dt><dd>It gives each Lambda function exactly one DynamoDB action, and nothing more.</dd>
+        </dl>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>CloudWatch</h3>
+        <dl>
+          <dt>What is it?</dt><dd>AWS's logging and monitoring service.</dd>
+          <dt>Why is it here?</dt><dd>Every Lambda invocation and API Gateway request writes logs here, which is where failures get diagnosed.</dd>
+        </dl>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>CDK / CloudFormation</h3>
+        <dl>
+          <dt>What is it?</dt><dd>Infrastructure-as-code: TypeScript that compiles to a CloudFormation template.</dd>
+          <dt>Why is it here?</dt><dd>It defines every resource above in one place, and deploys or destroys them repeatably.</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Security Model</p>
+    <h2>Least privilege, function by function</h2>
+    <p class="section-intro">
+      Every Lambda's IAM policy grants exactly one DynamoDB action, scoped
+      to the one table in this stack — never <code>dynamodb:*</code>.
+    </p>
+    <div class="security-grid">
+      <div class="sec-item">
+        <div class="fn">create-item</div>
+        <div class="arrow-down">↓</div>
+        <div class="perm">PutItem only</div>
+      </div>
+      <div class="sec-item">
+        <div class="fn">list-items</div>
+        <div class="arrow-down">↓</div>
+        <div class="perm">Scan only</div>
+      </div>
+      <div class="sec-item">
+        <div class="fn">get-item</div>
+        <div class="arrow-down">↓</div>
+        <div class="perm">GetItem only</div>
+      </div>
+      <div class="sec-item">
+        <div class="fn">delete-item</div>
+        <div class="arrow-down">↓</div>
+        <div class="perm">DeleteItem only</div>
+      </div>
+    </div>
+    <p class="note">
+      Authentication is intentionally omitted from this demo so it can be
+      run with a single curl command. See <code>docs/security.md</code>
+      for production options (Cognito, JWT authorizers, IAM auth, custom
+      Lambda authorizers).
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Failure Handling</p>
+    <h2>What happens when a request fails</h2>
+    <p class="section-intro">
+      Every failure path ends the same way: a small, predictable JSON
+      error shape for the client, and full detail in CloudWatch.
+    </p>
+    <div class="failure-grid">
+      <div class="failure-path">
+        <div class="step bad">Invalid request</div>
+        <div class="arrow-down">↓</div>
+        <div class="step">Lambda validation</div>
+        <div class="arrow-down">↓</div>
+        <div class="step final">400 structured error</div>
+      </div>
+      <div class="failure-path">
+        <div class="step bad">Unexpected exception</div>
+        <div class="arrow-down">↓</div>
+        <div class="step">Logged to CloudWatch</div>
+        <div class="arrow-down">↓</div>
+        <div class="step final">500 safe client response</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="deployment">
+  <div class="wrap">
+    <p class="eyebrow">Deployment</p>
+    <h2>Deploy it, try it, tear it down</h2>
+    <div class="deploy-cols">
+      <div>
+        <h4>Deploy</h4>
+        <pre><code>npm install
+npm test
+npx cdk synth
+npx cdk deploy</code></pre>
+      </div>
+      <div>
+        <h4>Destroy</h4>
+        <pre><code>npx cdk destroy</code></pre>
+        <p style="color:var(--text-dim); font-size:0.87rem;">
+          Removes every resource, including the DynamoDB table — this
+          project uses <code>RemovalPolicy.DESTROY</code> so a demo
+          deployment never lingers.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Production Evolution</p>
+    <h2>What would change in production?</h2>
+    <p class="section-intro">
+      This repository is a teaching reference, not a production template.
+      These are intentionally excluded from the demo.
+    </p>
+    <div class="evolution">
+      <div class="item"><b>Authentication</b>Cognito, JWT, IAM, or a custom Lambda authorizer</div>
+      <div class="item"><b>Pagination</b>Avoid returning an entire table in one response</div>
+      <div class="item"><b>WAF</b>Filter malicious traffic in front of the API</div>
+      <div class="item"><b>Alarms</b>Page a human on elevated error rates or latency</div>
+      <div class="item"><b>Tracing</b>AWS X-Ray across API Gateway, Lambda, and DynamoDB</div>
+      <div class="item"><b>CI/CD</b>Build, test, and deploy automatically on change</div>
+      <div class="item"><b>Backups</b>Point-in-time recovery for DynamoDB</div>
+      <div class="item"><b>Custom domain</b>A branded hostname instead of execute-api</div>
+      <div class="item"><b>API versioning</b>A stable contract as the API evolves</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Educational reference architecture — see <code>README.md</code> for full documentation.
+  </div>
+</footer>
+
+</body>
+</html>
