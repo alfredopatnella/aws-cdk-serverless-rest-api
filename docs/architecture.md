@@ -1,5 +1,7 @@
 # Architecture
 
+🌐 Language: **English** | [Español](es/architecture.md)
+
 This document goes one level deeper than the README. It describes the
 system from the client's point of view, walks through each request type,
 and explains how the CDK source in this repository becomes running AWS

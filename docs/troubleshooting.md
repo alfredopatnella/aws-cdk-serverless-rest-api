@@ -1,5 +1,7 @@
 # Troubleshooting
 
+🌐 Language: **English** | [Español](es/troubleshooting.md)
+
 Practical fixes for the problems most likely to come up while building,
 testing, and deploying this project.
 

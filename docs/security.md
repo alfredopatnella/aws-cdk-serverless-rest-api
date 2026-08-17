@@ -1,5 +1,7 @@
 # Security
 
+🌐 Language: **English** | [Español](es/security.md)
+
 This document explains the security posture of the reference architecture:
 what is implemented, what is intentionally left out for educational
 clarity, and what a production deployment would add.

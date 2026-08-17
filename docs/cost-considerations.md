@@ -1,5 +1,7 @@
 # Cost Considerations
 
+🌐 Language: **English** | [Español](es/cost-considerations.md)
+
 This document explains the *billing model* for each service used in this
 architecture — not exact prices, which change over time and vary by
 region. For a real estimate, use the

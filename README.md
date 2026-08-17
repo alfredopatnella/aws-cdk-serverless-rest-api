@@ -1,5 +1,7 @@
 # Serverless REST API with AWS CDK
 
+🌐 Language: **English** | [Español](README.es.md)
+
 A deliberately small reference architecture demonstrating how to build,
 deploy, secure, test, and operate a serverless REST API using API
 Gateway, AWS Lambda, DynamoDB, TypeScript, and AWS CDK.

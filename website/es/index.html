@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Serverless REST API — AWS CDK Reference Architecture</title>
-<meta name="description" content="An educational walkthrough of a serverless REST API built with API Gateway, Lambda, DynamoDB, IAM, CloudWatch, and AWS CDK.">
+<title>API REST Serverless — Arquitectura de Referencia con AWS CDK</title>
+<meta name="description" content="Un recorrido educativo por una API REST serverless construida con API Gateway, Lambda, DynamoDB, IAM, CloudWatch y AWS CDK.">
 <style>
   :root {
     --bg: #0b1220;
@@ -416,69 +416,70 @@
 
 <header class="hero">
   <div class="wrap">
-    <span class="kicker">AWS Reference Architecture</span>
-    <h1>Serverless REST API
-      <span class="sub">AWS CDK Reference Architecture</span>
+    <span class="kicker">Arquitectura de Referencia de AWS</span>
+    <h1>API REST Serverless
+      <span class="sub">Arquitectura de Referencia con AWS CDK</span>
     </h1>
     <p class="hero-subtitle">
-      Learn how API Gateway, Lambda, DynamoDB, IAM, and CloudWatch fit
-      together in a small, production-inspired serverless application —
-      deliberately simple enough to read start to finish in one sitting.
+      Aprende cómo encajan API Gateway, Lambda, DynamoDB, IAM y CloudWatch
+      en una aplicación serverless pequeña e inspirada en producción —
+      deliberadamente simple para poder leerla de principio a fin en una
+      sola sesión.
     </p>
     <div class="hero-links">
-      <a class="primary" href="#deployment">Deploy it</a>
-      <a class="secondary" href="#architecture">See the architecture</a>
-      <a class="secondary" href="#services">Explore the services</a>
+      <a class="primary" href="#deployment">Despliégalo</a>
+      <a class="secondary" href="#architecture">Ver la arquitectura</a>
+      <a class="secondary" href="#services">Explorar los servicios</a>
     </div>
     <p style="margin-top:18px; font-size:0.85rem; color:var(--text-faint);">
-      🌐 <strong style="color:var(--text);">English</strong> | <a href="es/index.html">Español</a>
+      🌐 <a href="../index.html">English</a> | <strong style="color:var(--text);">Español</strong>
     </p>
   </div>
 </header>
 
 <section id="architecture">
   <div class="wrap">
-    <p class="eyebrow">Architecture</p>
-    <h2>Four services, one request path</h2>
+    <p class="eyebrow">Arquitectura</p>
+    <h2>Cuatro servicios, una sola ruta de solicitud</h2>
     <p class="section-intro">
-      A client only ever talks to API Gateway. Everything else — compute,
-      storage, permissions, and logging — happens behind that one HTTPS
-      endpoint.
+      Un cliente solo habla con API Gateway. Todo lo demás —cómputo,
+      almacenamiento, permisos y logging— ocurre detrás de ese único
+      endpoint HTTPS.
     </p>
 
     <div class="diagram">
-      <div class="diagram-node">Client</div>
+      <div class="diagram-node">Cliente</div>
       <div class="diagram-arrow">↓</div>
-      <div class="diagram-node accent">API Gateway<span class="label-sub">Public HTTPS entry point</span></div>
+      <div class="diagram-node accent">API Gateway<span class="label-sub">Punto de entrada HTTPS público</span></div>
       <div class="diagram-arrow">↓</div>
-      <div class="diagram-node accent">Lambda<span class="label-sub">TypeScript handlers, one per route</span></div>
+      <div class="diagram-node accent">Lambda<span class="label-sub">Handlers TypeScript, uno por ruta</span></div>
       <div class="diagram-arrow">↓</div>
       <div class="diagram-node accent">DynamoDB<span class="label-sub">Partition key: id</span></div>
     </div>
 
     <div class="diagram-support">
-      <span class="pill"><b>IAM</b> — grants each Lambda one DynamoDB action</span>
-      <span class="pill"><b>CloudWatch</b> — receives logs from every request</span>
-      <span class="pill"><b>CDK / CloudFormation</b> — defines and deploys all of it</span>
+      <span class="pill"><b>IAM</b> — otorga a cada Lambda una acción de DynamoDB</span>
+      <span class="pill"><b>CloudWatch</b> — recibe logs de cada solicitud</span>
+      <span class="pill"><b>CDK / CloudFormation</b> — define y despliega todo</span>
     </div>
   </div>
 </section>
 
 <section>
   <div class="wrap">
-    <p class="eyebrow">Request Lifecycle</p>
-    <h2>How POST /items flows through the system</h2>
+    <p class="eyebrow">Ciclo de vida de la solicitud</p>
+    <h2>Cómo fluye POST /items a través del sistema</h2>
     <p class="section-intro">
-      Every request follows the same six-stage shape, whether it's
-      creating, reading, listing, or deleting a task.
+      Toda solicitud sigue la misma forma de seis etapas, ya sea que esté
+      creando, leyendo, listando o eliminando una tarea.
     </p>
     <div class="flow">
-      <div class="flow-step"><span class="num">1</span><p>Client sends a JSON request over HTTPS.</p></div>
-      <div class="flow-step"><span class="num">2</span><p>API Gateway routes the request to the matching Lambda.</p></div>
-      <div class="flow-step"><span class="num">3</span><p>Lambda validates the input before touching any data.</p></div>
-      <div class="flow-step"><span class="num">4</span><p>Lambda calls DynamoDB with a single, scoped SDK command.</p></div>
-      <div class="flow-step"><span class="num">5</span><p>Lambda builds a structured JSON response.</p></div>
-      <div class="flow-step"><span class="num">6</span><p>API Gateway returns the HTTP response to the client.</p></div>
+      <div class="flow-step"><span class="num">1</span><p>El cliente envía una solicitud JSON por HTTPS.</p></div>
+      <div class="flow-step"><span class="num">2</span><p>API Gateway enruta la solicitud a la Lambda correspondiente.</p></div>
+      <div class="flow-step"><span class="num">3</span><p>Lambda valida la entrada antes de tocar cualquier dato.</p></div>
+      <div class="flow-step"><span class="num">4</span><p>Lambda llama a DynamoDB con un único comando del SDK, bien acotado.</p></div>
+      <div class="flow-step"><span class="num">5</span><p>Lambda construye una respuesta JSON estructurada.</p></div>
+      <div class="flow-step"><span class="num">6</span><p>API Gateway devuelve la respuesta HTTP al cliente.</p></div>
     </div>
   </div>
 </section>
@@ -486,31 +487,32 @@
 <section>
   <div class="wrap">
     <p class="eyebrow">API</p>
-    <h2>Four endpoints, four Lambda functions</h2>
+    <h2>Cuatro endpoints, cuatro funciones Lambda</h2>
     <p class="section-intro">
-      Each route is backed by its own small handler, so the routing table
-      below and the IAM permissions further down line up one to one.
+      Cada ruta está respaldada por su propio handler pequeño, así que la
+      tabla de rutas de abajo y los permisos IAM más abajo coinciden uno
+      a uno.
     </p>
     <div class="endpoints">
       <div class="endpoint">
         <span class="method post">POST</span>
         <span class="path">/items</span>
-        <p>Creates a task from a <code>title</code>, generating its <code>id</code>, <code>createdAt</code>, and <code>completed</code> fields.</p>
+        <p>Crea una tarea a partir de un <code>title</code>, generando sus campos <code>id</code>, <code>createdAt</code> y <code>completed</code>.</p>
       </div>
       <div class="endpoint">
         <span class="method get">GET</span>
         <span class="path">/items</span>
-        <p>Returns every task via a DynamoDB Scan — simple and correct at this scale.</p>
+        <p>Devuelve todas las tareas mediante un Scan de DynamoDB — simple y correcto a esta escala.</p>
       </div>
       <div class="endpoint">
         <span class="method get">GET</span>
         <span class="path">/items/{id}</span>
-        <p>Returns one task by partition key, or a structured 404 if it doesn't exist.</p>
+        <p>Devuelve una tarea por partition key, o un 404 estructurado si no existe.</p>
       </div>
       <div class="endpoint">
         <span class="method delete">DELETE</span>
         <span class="path">/items/{id}</span>
-        <p>Removes a task, distinguishing an existing item (204) from a missing one (404).</p>
+        <p>Elimina una tarea, distinguiendo un item existente (204) de uno inexistente (404).</p>
       </div>
     </div>
   </div>
@@ -518,53 +520,53 @@
 
 <section id="services">
   <div class="wrap">
-    <p class="eyebrow">AWS Services</p>
-    <h2>What each service is doing here</h2>
+    <p class="eyebrow">Servicios de AWS</p>
+    <h2>Qué hace cada servicio aquí</h2>
     <p class="section-intro">
-      No service in this stack was added out of habit — each one answers
-      a specific question about the system.
+      Ningún servicio de este stack se agregó por costumbre — cada uno
+      responde a una pregunta específica sobre el sistema.
     </p>
     <div class="cards">
       <div class="card">
         <h3><span class="dot"></span>API Gateway</h3>
         <dl>
-          <dt>What is it?</dt><dd>A managed HTTPS front door that routes requests to backend integrations.</dd>
-          <dt>Why is it here?</dt><dd>It's the one public entry point — TLS, routing, and request validation without running a web server.</dd>
+          <dt>¿Qué es?</dt><dd>Una puerta de entrada HTTPS administrada que enruta solicitudes hacia integraciones backend.</dd>
+          <dt>¿Por qué está aquí?</dt><dd>Es el único punto de entrada público — TLS, enrutamiento y validación de solicitudes sin operar un servidor web.</dd>
         </dl>
       </div>
       <div class="card">
         <h3><span class="dot"></span>Lambda</h3>
         <dl>
-          <dt>What is it?</dt><dd>A managed compute service that runs code on demand, with no server to provision.</dd>
-          <dt>Why is it here?</dt><dd>It runs the four small handlers that implement the API's application logic.</dd>
+          <dt>¿Qué es?</dt><dd>Un servicio de cómputo administrado que ejecuta código bajo demanda, sin servidor que aprovisionar.</dd>
+          <dt>¿Por qué está aquí?</dt><dd>Ejecuta los cuatro pequeños handlers que implementan la lógica de aplicación de la API.</dd>
         </dl>
       </div>
       <div class="card">
         <h3><span class="dot"></span>DynamoDB</h3>
         <dl>
-          <dt>What is it?</dt><dd>A managed key-value/document database that scales automatically.</dd>
-          <dt>Why is it here?</dt><dd>It durably stores every task item, keyed by a simple string partition key.</dd>
+          <dt>¿Qué es?</dt><dd>Una base de datos administrada de clave-valor/documentos que escala automáticamente.</dd>
+          <dt>¿Por qué está aquí?</dt><dd>Almacena de forma duradera cada item de tarea, con una simple partition key de tipo string.</dd>
         </dl>
       </div>
       <div class="card">
         <h3><span class="dot"></span>IAM</h3>
         <dl>
-          <dt>What is it?</dt><dd>AWS's permission system — who (or what) can call which action, on which resource.</dd>
-          <dt>Why is it here?</dt><dd>It gives each Lambda function exactly one DynamoDB action, and nothing more.</dd>
+          <dt>¿Qué es?</dt><dd>El sistema de permisos de AWS — quién (o qué) puede llamar a qué acción, sobre qué recurso.</dd>
+          <dt>¿Por qué está aquí?</dt><dd>Le da a cada función Lambda exactamente una acción de DynamoDB, y nada más.</dd>
         </dl>
       </div>
       <div class="card">
         <h3><span class="dot"></span>CloudWatch</h3>
         <dl>
-          <dt>What is it?</dt><dd>AWS's logging and monitoring service.</dd>
-          <dt>Why is it here?</dt><dd>Every Lambda invocation and API Gateway request writes logs here, which is where failures get diagnosed.</dd>
+          <dt>¿Qué es?</dt><dd>El servicio de logging y monitoreo de AWS.</dd>
+          <dt>¿Por qué está aquí?</dt><dd>Cada invocación de Lambda y cada solicitud a API Gateway escriben logs aquí, que es donde se diagnostican los fallos.</dd>
         </dl>
       </div>
       <div class="card">
         <h3><span class="dot"></span>CDK / CloudFormation</h3>
         <dl>
-          <dt>What is it?</dt><dd>Infrastructure-as-code: TypeScript that compiles to a CloudFormation template.</dd>
-          <dt>Why is it here?</dt><dd>It defines every resource above in one place, and deploys or destroys them repeatably.</dd>
+          <dt>¿Qué es?</dt><dd>Infraestructura como código: TypeScript que compila a una plantilla de CloudFormation.</dd>
+          <dt>¿Por qué está aquí?</dt><dd>Define cada recurso anterior en un solo lugar, y los despliega o destruye de forma repetible.</dd>
         </dl>
       </div>
     </div>
@@ -573,65 +575,68 @@
 
 <section>
   <div class="wrap">
-    <p class="eyebrow">Security Model</p>
-    <h2>Least privilege, function by function</h2>
+    <p class="eyebrow">Modelo de seguridad</p>
+    <h2>Mínimo privilegio, función por función</h2>
     <p class="section-intro">
-      Every Lambda's IAM policy grants exactly one DynamoDB action, scoped
-      to the one table in this stack — never <code>dynamodb:*</code>.
+      La política IAM de cada Lambda otorga exactamente una acción de
+      DynamoDB, limitada a la única tabla de este stack — nunca
+      <code>dynamodb:*</code>.
     </p>
     <div class="security-grid">
       <div class="sec-item">
         <div class="fn">create-item</div>
         <div class="arrow-down">↓</div>
-        <div class="perm">PutItem only</div>
+        <div class="perm">Solo PutItem</div>
       </div>
       <div class="sec-item">
         <div class="fn">list-items</div>
         <div class="arrow-down">↓</div>
-        <div class="perm">Scan only</div>
+        <div class="perm">Solo Scan</div>
       </div>
       <div class="sec-item">
         <div class="fn">get-item</div>
         <div class="arrow-down">↓</div>
-        <div class="perm">GetItem only</div>
+        <div class="perm">Solo GetItem</div>
       </div>
       <div class="sec-item">
         <div class="fn">delete-item</div>
         <div class="arrow-down">↓</div>
-        <div class="perm">DeleteItem only</div>
+        <div class="perm">Solo DeleteItem</div>
       </div>
     </div>
     <p class="note">
-      Authentication is intentionally omitted from this demo so it can be
-      run with a single curl command. See <code>docs/security.md</code>
-      for production options (Cognito, JWT authorizers, IAM auth, custom
-      Lambda authorizers).
+      La autenticación se omite intencionalmente en este demo para poder
+      ejecutarlo con un único comando curl. Ver
+      <code>docs/es/security.md</code> para opciones de producción
+      (Cognito, autorizadores JWT, autorización IAM, autorizadores Lambda
+      personalizados).
     </p>
   </div>
 </section>
 
 <section>
   <div class="wrap">
-    <p class="eyebrow">Failure Handling</p>
-    <h2>What happens when a request fails</h2>
+    <p class="eyebrow">Manejo de fallos</p>
+    <h2>Qué ocurre cuando una solicitud falla</h2>
     <p class="section-intro">
-      Every failure path ends the same way: a small, predictable JSON
-      error shape for the client, and full detail in CloudWatch.
+      Toda ruta de fallo termina de la misma forma: una pequeña forma de
+      error JSON predecible para el cliente, y el detalle completo en
+      CloudWatch.
     </p>
     <div class="failure-grid">
       <div class="failure-path">
-        <div class="step bad">Invalid request</div>
+        <div class="step bad">Solicitud inválida</div>
         <div class="arrow-down">↓</div>
-        <div class="step">Lambda validation</div>
+        <div class="step">Validación en Lambda</div>
         <div class="arrow-down">↓</div>
-        <div class="step final">400 structured error</div>
+        <div class="step final">400 error estructurado</div>
       </div>
       <div class="failure-path">
-        <div class="step bad">Unexpected exception</div>
+        <div class="step bad">Excepción inesperada</div>
         <div class="arrow-down">↓</div>
-        <div class="step">Logged to CloudWatch</div>
+        <div class="step">Registrada en CloudWatch</div>
         <div class="arrow-down">↓</div>
-        <div class="step final">500 safe client response</div>
+        <div class="step final">500 respuesta segura al cliente</div>
       </div>
     </div>
   </div>
@@ -639,23 +644,23 @@
 
 <section id="deployment">
   <div class="wrap">
-    <p class="eyebrow">Deployment</p>
-    <h2>Deploy it, try it, tear it down</h2>
+    <p class="eyebrow">Despliegue</p>
+    <h2>Despliégalo, pruébalo, elimínalo</h2>
     <div class="deploy-cols">
       <div>
-        <h4>Deploy</h4>
+        <h4>Desplegar</h4>
         <pre><code>npm install
 npm test
 npx cdk synth
 npx cdk deploy</code></pre>
       </div>
       <div>
-        <h4>Destroy</h4>
+        <h4>Eliminar</h4>
         <pre><code>npx cdk destroy</code></pre>
         <p style="color:var(--text-dim); font-size:0.87rem;">
-          Removes every resource, including the DynamoDB table — this
-          project uses <code>RemovalPolicy.DESTROY</code> so a demo
-          deployment never lingers.
+          Elimina todos los recursos, incluida la tabla de DynamoDB —
+          este proyecto usa <code>RemovalPolicy.DESTROY</code> para que
+          un despliegue de demostración nunca quede pendiente.
         </p>
       </div>
     </div>
@@ -664,29 +669,29 @@ npx cdk deploy</code></pre>
 
 <section>
   <div class="wrap">
-    <p class="eyebrow">Production Evolution</p>
-    <h2>What would change in production?</h2>
+    <p class="eyebrow">Evolución hacia producción</p>
+    <h2>¿Qué cambiaría en producción?</h2>
     <p class="section-intro">
-      This repository is a teaching reference, not a production template.
-      These are intentionally excluded from the demo.
+      Este repositorio es una referencia didáctica, no una plantilla de
+      producción. Esto se excluye intencionalmente del demo.
     </p>
     <div class="evolution">
-      <div class="item"><b>Authentication</b>Cognito, JWT, IAM, or a custom Lambda authorizer</div>
-      <div class="item"><b>Pagination</b>Avoid returning an entire table in one response</div>
-      <div class="item"><b>WAF</b>Filter malicious traffic in front of the API</div>
-      <div class="item"><b>Alarms</b>Page a human on elevated error rates or latency</div>
-      <div class="item"><b>Tracing</b>AWS X-Ray across API Gateway, Lambda, and DynamoDB</div>
-      <div class="item"><b>CI/CD</b>Build, test, and deploy automatically on change</div>
-      <div class="item"><b>Backups</b>Point-in-time recovery for DynamoDB</div>
-      <div class="item"><b>Custom domain</b>A branded hostname instead of execute-api</div>
-      <div class="item"><b>API versioning</b>A stable contract as the API evolves</div>
+      <div class="item"><b>Autenticación</b>Cognito, JWT, IAM, o un autorizador Lambda personalizado</div>
+      <div class="item"><b>Paginación</b>Evitar devolver toda una tabla en una sola respuesta</div>
+      <div class="item"><b>WAF</b>Filtrar tráfico malicioso delante de la API</div>
+      <div class="item"><b>Alarmas</b>Avisar a una persona ante tasas de error o latencia elevadas</div>
+      <div class="item"><b>Trazabilidad</b>AWS X-Ray a través de API Gateway, Lambda y DynamoDB</div>
+      <div class="item"><b>CI/CD</b>Compilar, probar y desplegar automáticamente en cada cambio</div>
+      <div class="item"><b>Backups</b>Recuperación a un punto en el tiempo para DynamoDB</div>
+      <div class="item"><b>Dominio personalizado</b>Un hostname de marca en lugar de execute-api</div>
+      <div class="item"><b>Versionado de API</b>Un contrato estable a medida que la API evoluciona</div>
     </div>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
-    Educational reference architecture — see <code>README.md</code> for full documentation.
+    Arquitectura de referencia educativa — ver <code>README.es.md</code> para la documentación completa.
   </div>
 </footer>
 
